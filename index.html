@@ -1,20 +1,24 @@
 <!DOCTYPE html>
     <meta>
+    <title>WEB API</title>
     </meta>
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     </head>
     <body>
         <h1>WEB API</h1>
+        <input id="username" type="text" placeholder="input username">
+        <button id="userConfirm">Set user</button>
+        <div id="user"></div>
         <ul>
             <li>
-                <p>Get language by id</p>
-                <input id="LangaugeID" type="number" placeholder="LangaugeID">
-                <button id="getLanguageByID">Get</button>
+                <p>Select city by id</p>
+                <input id="cityID" type="number" placeholder="city id"><br>
+                <button id="getCityByID">Select</button>
             </li>
             <li>
                 <p>Post country with name</p>
-                <input id="CountryName" type="text" placeholder="Country name">
+                <input id="CountryName" type="text" placeholder="Country name"><br>
                 <button id="postCountry">Post</button>
             </li>
             <li>
@@ -23,21 +27,33 @@
             </li>
             <li>
                 <p>Delete country by ID</p>
-                <input id="deleteCountryById" type="number" placeholder="CountryId">
+                <input id="deleteCountryById" type="number" placeholder="CountryId"><br>
                 <button id="deleteCountry">Delete</button>
+            </li>
+            <li>
+                <p>Update Country name</p>
+                <input id="putCountryID" type="number" placeholder="Country id"><br>
+                <input id="putCountryName" type="text" placeholder="Country name"><br>
+                <button id="putCountry">Put</button>
             </li>
         </ul>
         <div id="responseField"></div>
         <script type="text/javascript">
+            //UserMo
             $(document).ready(function(){
-                let username = "mort40f4";
-                
-                $("#getLanguageByID").click(function(){
+                let username = $("#username").val();
+                $("#userConfirm").click(function(){
+                    $("#user").empty();
+                    username = $("#username").val();
+                    $("#user").append(username);
+                })
+                let URI = "https://cityinfo.buchwaldshave34.dk/api/City/"
+                $("#getCityByID").click(function(){
                     $("#responseField").empty();
-                    let LangaugeID = $("#LangaugeID").val();
+                    let cityID = $("#cityID").val();
                     $.ajax({
                         method: "GET",
-                        url: "https://cityinfo.buchwaldshave34.dk/api/Language/1?LanguageId="+LangaugeID+"&UserName=" + username,
+                        url: URI + cityID+"?includeRelations=true&UserName=" + username,
                         dataType: 'JSON',
                         statusCode: {
                             400: function(){
@@ -46,11 +62,11 @@
                         }
                     }).done(function (response){
                         
-                        var id = response.languageId;
-                        var languageName = response.languageName;
+                        var id = response.cityId;
+                        var cityName = response.name;
                         var tr_str = "<tr><th>ID</th><th>Language</th>"+
                             "<tr><td align='center'>" + id + "</td>" 
-                            +"<td align='center'>" + languageName + "</td></tr>"
+                            +"<td align='center'>" + cityName + "</td></tr>"
                         $("#responseField").append(tr_str);
                     })
                 });
@@ -61,7 +77,7 @@
                     };
                     $.ajax({
                         method: "POST",
-                        url: "https://cityinfo.buchwaldshave34.dk/api/Country?" + "UserName=" + username,
+                        url: URI + "Country?" + "UserName=" + username,
                         dataType: "json",
                         contentType: 'application/json',
                         data: JSON.stringify(Country),
@@ -79,7 +95,7 @@
                     $("#responseField").empty();
                     $.ajax({
                         method: "GET",
-                        url: "https://cityinfo.buchwaldshave34.dk/api/Country?includeRelations=true&" + "UserName=" + username
+                        url: URI + "Country?includeRelations=true&" + "UserName=" + username
                     }).done(function(response){
                         var len = response.length;
                         $("#responseField").append("<tr><th>ID</th><th>Name</th></tr>")
@@ -101,7 +117,7 @@
                     let countryID = $("#deleteCountryById").val();
                     $.ajax({
                         method: "DELETE",
-                        url: "https://cityinfo.buchwaldshave34.dk/api/Country/" + countryID + "?UserName=" + username,
+                        url: URI + "Country/" + countryID + "?UserName=" + username,
                         statusCode: {
                             400: function(){
                                 alert("Bad request");
@@ -114,6 +130,31 @@
                         alert("Country with ID: " + countryID + " deleted");
                     })  
                 });
+                $("#putCountry").click(function(){
+                    $("#responseField").empty();
+                    let countryID = $("#putCountryID").val();
+                    let country = {
+                        countryName: $("#putCountryName").val(),
+                        countryID: $("#putCountryID").val()
+                    };
+                    $.ajax({
+                        method: "PUT",
+                        url: URI + "Country/" + countryID + "?UserName=" + username,
+                        dataType: "json",
+                        contentType: 'application/json',
+                        data: JSON.stringify(country),
+                        statusCode: {
+                            400: function(){
+                                alert("Bad request");
+                            },
+                            405: function(){
+                                alert("Not allowed");
+                            }
+                        }
+                    }).done(function (response){
+                        alert("Country with ID: " + countryID + " updated");
+                    })  
+                })
             });  
         </script>
     </body>
