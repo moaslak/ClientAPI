@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+    <meta>
+    </meta>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    </head>
+    <body>
+        <h1>WEB API</h1>
+        <ul>
+            <li>
+                <p>Get language by id</p>
+                <input id="LangaugeID" type="number" placeholder="LangaugeID">
+                <button id="getLanguageByID">Get</button>
+            </li>
+            <li>
+                <p>Put country with name and id</p>
+                <input id="CountryName" type="text" placeholder="Country name">
+                <br>
+                <input id="CountryID" type="number" placeholder="Country ID">
+                <button id="putCountry">Put</button>
+            </li>
+        </ul>
+        <div id="responseField"></div>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                let username = "mort40f4";
+                $("#getLanguageByID").click(function(){
+                    
+                    let LangaugeID = $("#LangaugeID").val();
+                    $.ajax({
+                        method: "GET",
+                        url: "https://cityinfo.buchwaldshave34.dk/api/Language/1?LanguageId="+LangaugeID+"&UserName=" + username,
+                    }).done(function (response){
+                        var len = response.cityLanguages.length+1;
+                        var id = response.languageId;
+                            var languageName = response.languageName;
+                        var tr_str = "<tr><th>ID: </th><td align='center'>" + id + "</td></tr>" +
+                                "<tr><th>Language name: </th><td align='center'>" + languageName + "</td></tr>"
+                        $("#responseField").append(tr_str);
+                        
+                        /*for(var i=0; i<len; i++){
+                            var id = response[i].languageId;
+                            var languageName = response[i].languageName;
+
+                            var tr_str = "<tr>" +
+                                "<td align='center'>" + id + "</td>" +
+                                "<td align='center'>" + languageName + "</td>" +
+                                "</tr>";
+
+                            $("#responseField").append(tr_str);
+                        }*/
+                    });
+                });
+                $("#putCountry").click(function(){
+                    let CountryID = $("#CountryID").val();
+                    let CountryName = $("#CountryName").val();
+
+                })
+
+            });
+            
+        </script>
+    </body>
+    
