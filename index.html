@@ -13,51 +13,108 @@
                 <button id="getLanguageByID">Get</button>
             </li>
             <li>
-                <p>Put country with name and id</p>
+                <p>Post country with name</p>
                 <input id="CountryName" type="text" placeholder="Country name">
-                <br>
-                <input id="CountryID" type="number" placeholder="Country ID">
-                <button id="putCountry">Put</button>
+                <button id="postCountry">Post</button>
+            </li>
+            <li>
+                <p>Get countries</p>
+                <button id="getCountries">Get</button>
+            </li>
+            <li>
+                <p>Delete country by ID</p>
+                <input id="deleteCountryById" type="number" placeholder="CountryId">
+                <button id="deleteCountry">Delete</button>
             </li>
         </ul>
         <div id="responseField"></div>
         <script type="text/javascript">
             $(document).ready(function(){
                 let username = "mort40f4";
+                
                 $("#getLanguageByID").click(function(){
-                    
+                    $("#responseField").empty();
                     let LangaugeID = $("#LangaugeID").val();
                     $.ajax({
                         method: "GET",
                         url: "https://cityinfo.buchwaldshave34.dk/api/Language/1?LanguageId="+LangaugeID+"&UserName=" + username,
+                        dataType: 'JSON',
+                        statusCode: {
+                            400: function(){
+                                alert("Bad request");
+                            }
+                        }
                     }).done(function (response){
-                        var len = response.cityLanguages.length+1;
-                        var id = response.languageId;
-                            var languageName = response.languageName;
-                        var tr_str = "<tr><th>ID: </th><td align='center'>" + id + "</td></tr>" +
-                                "<tr><th>Language name: </th><td align='center'>" + languageName + "</td></tr>"
-                        $("#responseField").append(tr_str);
                         
-                        /*for(var i=0; i<len; i++){
-                            var id = response[i].languageId;
-                            var languageName = response[i].languageName;
-
-                            var tr_str = "<tr>" +
-                                "<td align='center'>" + id + "</td>" +
-                                "<td align='center'>" + languageName + "</td>" +
-                                "</tr>";
-
-                            $("#responseField").append(tr_str);
-                        }*/
+                        var id = response.languageId;
+                        var languageName = response.languageName;
+                        var tr_str = "<tr><th>ID</th><th>Language</th>"+
+                            "<tr><td align='center'>" + id + "</td>" 
+                            +"<td align='center'>" + languageName + "</td></tr>"
+                        $("#responseField").append(tr_str);
+                    })
+                });
+                $("#postCountry").click(function(){
+                    let CountryID = $("#CountryID").val();
+                    let Country = {
+                        countryName: $("#CountryName").val()
+                    };
+                    $.ajax({
+                        method: "POST",
+                        url: "https://cityinfo.buchwaldshave34.dk/api/Country?" + "UserName=" + username,
+                        dataType: "json",
+                        contentType: 'application/json',
+                        data: JSON.stringify(Country),
+                        statusCode: {
+                            400: function(){
+                                alert("Bad request");
+                            }
+                        } 
+                    }).done(function (response){
+                        alert("New country with ID: " + response);
+                        
                     });
                 });
-                $("#putCountry").click(function(){
-                    let CountryID = $("#CountryID").val();
-                    let CountryName = $("#CountryName").val();
+                $("#getCountries").click(function(){
+                    $("#responseField").empty();
+                    $.ajax({
+                        method: "GET",
+                        url: "https://cityinfo.buchwaldshave34.dk/api/Country?includeRelations=true&" + "UserName=" + username
+                    }).done(function(response){
+                        var len = response.length;
+                        $("#responseField").append("<tr><th>ID</th><th>Name</th></tr>")
+                        for(var i=0; i<len; i++){
+                            var countryID = response[i].countryID;
+                            var countryName = response[i].countryName;
 
+                            var tr_str = "<tr>" +
+                                "<td align='left'>" + countryID + "</td>" +
+                                "<td align='right'>" + countryName + "</td>" +
+                                "</tr>"; 
+
+                            $("#responseField").append(tr_str);
+                        }
+                    });
                 });
-            });
-            
+                $("#deleteCountry").click(function(){
+                    $("#responseField").empty();
+                    let countryID = $("#deleteCountryById").val();
+                    $.ajax({
+                        method: "DELETE",
+                        url: "https://cityinfo.buchwaldshave34.dk/api/Country/" + countryID + "?UserName=" + username,
+                        statusCode: {
+                            400: function(){
+                                alert("Bad request");
+                            },
+                            405: function(){
+                                alert("Not allowed");
+                            }
+                        }
+                    }).done(function (response){
+                        alert("Country with ID: " + countryID + " deleted");
+                    })  
+                });
+            });  
         </script>
     </body>
     
