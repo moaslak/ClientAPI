@@ -4,56 +4,83 @@
     </meta>
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <style>
+            td {padding-right:10px;}
+            th {padding-right:10px;}
+        </style>
     </head>
     <body>
         <h1>WEB API</h1>
-        <input id="username" type="text" placeholder="input username">
-        <button id="userConfirm">Set user</button>
+        <strong>Hentet indhold udskrives i bunden af siden</strong>
+        <!--<input id="username" type="text" placeholder="input username">
+        <button id="userConfirm">Set user</button>-->
         <div id="user"></div>
         <ul>
             <li>
-                <p>Select city by id</p>
-                <input id="cityID" type="number" placeholder="city id"><br>
-                <button id="getCityByID">Select</button>
+                <h2>1</h2>
+                <p>Hente City data ud fra Web Api'et uden relationer til andre tabeller inkluderet.</p>
+                <button id="getCitiesbtn">Get cities</button>
             </li>
             <li>
-                <p>Post country with name</p>
-                <input id="CountryName" type="text" placeholder="Country name"><br>
-                <button id="postCountry">Post</button>
+                <h2>2</h2>
+                <p>Hente City data ud fra Web Api'et med relationer til andre tabeller inkluderet.</p>
+                <button id="getCitiesWithRelbtn">Get cities with relations</button>
             </li>
             <li>
-                <p>Get countries</p>
-                <button id="getCountries">Get</button>
+                <h2>3</h2>
+                <p>Oprette en City med tilhørende CountryId.</p>
+                <input id="postCityWithCountryID" type="number" placeholder="CountryID"><br>
+                <input id="3CityName" type="text" placeholder="City name"><br>
+                <input id="3CityDescription" type="text" placeholder="City description"><br>
+                <button id="postCityWithCountryIDbtn">Post City with countryID</button>
             </li>
             <li>
-                <p>Delete country by ID</p>
-                <input id="deleteCountryById" type="number" placeholder="CountryId"><br>
-                <button id="deleteCountry">Delete</button>
+                <h2>4</h2>
+                <p>Opdatere en City. Det vil sige opdaterer ét eller flere felter for en City</p>
+                <input id="4CityId" type="number" placeholder="City Id (REQUIRED)"><br>
+                <input id="4CountryId" type="number" placeholder="CountryID"><br>
+                <input id="4CityName" type="text" placeholder="City name"><br>
+                <input id="4CityDescription" type="text" placeholder="City description"><br>
+                <button id="updateCitybtn">Update city</button>
             </li>
             <li>
-                <p>Update Country name</p>
-                <input id="putCountryID" type="number" placeholder="Country id"><br>
-                <input id="putCountryName" type="text" placeholder="Country name"><br>
-                <button id="putCountry">Put</button>
+                <h2>5</h2>
+                <p>Slette en City</p>
+                <input id="5CityID" type="number" placeholder="City id"><br>
+                <button id="DeleteCitybtn">Delete</button>
+            </li>
+            <li>
+                <h2>6</h2>
+                <p>Vise sprog, der tales i de forskellige byer</p>
+                <button id="6ShowLanguagesbtn">Show Languages</button>
+            </li>
+            <li>
+                <h2>7</h2>
+                <p>Indsætte et eller flere sprog til en By</p>
+                <input id="7CityID" type="number" placeholder="City ID (REQUIRED!!!)"><br>
+                <input id="7LanguageID" type="number" placeholder="Laguage ID (REQUIRED!!!)"><br>
+                <button id="7PostLanguagebtn">Add language to city</button>
+                <button id="ShowLanguageIDsbtn">Show language id's</button>
             </li>
         </ul>
         <div id="responseField"></div>
         <script type="text/javascript">
             //UserMo
+            let username = "UserMo";
             $(document).ready(function(){
-                let username = $("#username").val();
+                /*let username = $("#username").val();
                 $("#userConfirm").click(function(){
                     $("#user").empty();
                     username = $("#username").val();
                     $("#user").append(username);
-                })
-                let URI = "https://cityinfo.buchwaldshave34.dk/api/City/"
-                $("#getCityByID").click(function(){
+                })*/
+                let URI = "https://cityinfo.buchwaldshave34.dk/api/City"
+                $("#getCitiesbtn").click(function(){
                     $("#responseField").empty();
                     let cityID = $("#cityID").val();
                     $.ajax({
                         method: "GET",
-                        url: URI + cityID+"?includeRelations=true&UserName=" + username,
+                        url: URI + "/?includeRelations=false&UserName=" + username,
                         dataType: 'JSON',
                         statusCode: {
                             400: function(){
@@ -61,99 +88,221 @@
                             }
                         }
                     }).done(function (response){
-                        
-                        var id = response.cityId;
-                        var cityName = response.name;
-                        var tr_str = "<tr><th>ID</th><th>Language</th>"+
-                            "<tr><td align='center'>" + id + "</td>" 
-                            +"<td align='center'>" + cityName + "</td></tr>"
+                        var len = response.length;
+
+                        for(var i=0; i<len; i++){
+                        var id = response[i].cityId;
+                        var cityName = response[i].name;
+                        var description = response[i].description;
+                        var tr_str = "<tr><th>ID</th><th>City</th><th>Description</th></tr>"
+                            +"<tr>"
+                            +"<td align='center'>" + id + "</td>" 
+                            +"<td align='center'>" + cityName + "</td>"
+                            +"<td align='center'>" + description + "</td>"
+                            +"</tr>"
                         $("#responseField").append(tr_str);
+                        }
                     })
                 });
-                $("#postCountry").click(function(){
-                    let CountryID = $("#CountryID").val();
+                $("#getCitiesWithRelbtn").click(function(){
+                    /*let CountryID = $("#CountryID").val();
                     let Country = {
                         countryName: $("#CountryName").val()
-                    };
+                    };*/
+                    $("#responseField").empty();
                     $.ajax({
-                        method: "POST",
-                        url: URI + "Country?" + "UserName=" + username,
+                        method: "GET",
+                        url: URI + "/?includeRelations=true" + "&UserName=" + username,
                         dataType: "json",
-                        contentType: 'application/json',
-                        data: JSON.stringify(Country),
                         statusCode: {
                             400: function(){
                                 alert("Bad request");
                             }
                         } 
                     }).done(function (response){
-                        alert("New country with ID: " + response);
+                        var len = response.length;
+
+                        for(var i=0; i<len; i++){
+                        var id = response[i].cityId;
+                        var cityName = response[i].name;
+                        var description = response[i].description;
+                        var country =response[i].country.countryName;
+                        var tr_str = "<tr><th>ID</th><th>City</th><th>Description</th><th>Country</th></tr>"
+                            +"<tr>"
+                            +"<td align='center'>" + id + "</td>" 
+                            +"<td align='center'>" + cityName + "</td>"
+                            +"<td align='center'>" + description + "</td>"
+                            +"<td align='center'>" + country + "</td>"
+                            +"</tr>"
+                        $("#responseField").append(tr_str);
+                        }
                         
                     });
                 });
-                $("#getCountries").click(function(){
+                $("#postCityWithCountryIDbtn").click(function(){
+                    $("#responseField").empty();
+                    var city =  {
+                        name: $("#3CityName").val(),
+                        description: $("#3CityDescription").val(),
+                        countryID: $("#postCityWithCountryID").val()
+                    };
+                    $.ajax({
+                        method: "POST",
+                        dataType: "json",
+                        contentType: 'application/json',
+                        data: JSON.stringify(city),
+                        url: URI + "?UserName=" + username,
+                        statusCode: {
+                            400: function(){
+                                alert("Bad request");
+                            },
+                            200: function(){
+                                alert("SUCCES");
+                            },
+                            500: function(){
+                                alert("Server error. Make sure to enter an existing CountryID!!!");
+                            }
+                        }
+                    })
+                });
+                $("#updateCitybtn").click(function(){
+                    var city =  {
+                        name: $("#4CityName").val(),
+                        description: $("#4CityDescription").val(),
+                        countryID: $("#4CountryId").val(),
+                        cityID: $("#4CityId").val()
+                    };
+                    $.ajax({
+                        method: "GET",
+                        url: URI + "/" + city.cityID + "?includeRelations=true&UserName=" + username,
+                        dataType: "json"
+                    }).done(function(response){
+                        if(city.name == "")
+                            city.name = response.name;
+                        if(city.countryID == null || city.countryID == 0 || city.countryID == '') 
+                            city.countryID = response.countryID;  
+                        
+                        $.ajax({
+                        method: "PUT",
+                        url: URI + "/" + city.cityID + "?UserName=" + username,
+                        dataType: "json",
+                        contentType: 'application/json',
+                        data: JSON.stringify(city),
+                        statusCode: {
+                            400: function(){
+                                alert("Bad request");
+                            },
+                            405: function(){
+                                alert("Not allowed");
+                            },
+                            200: function(){
+                                alert("City updated");
+                            }
+                            }
+                        })
+                    }) 
+                })
+                $("#DeleteCitybtn").click(function(){
+                    $("#responseField").empty();
+                    let cityID = $("#5CityID").val();
+                    $.ajax({
+                        method: "DELETE",
+                        url: URI + "/" + cityID + "?UserName=" + username,
+                        statusCode: {
+                            400: function(){
+                                alert("Bad request");
+                            },
+                            404: function(){
+                                alert("City not found");
+                            },
+                            405: function(){
+                                alert("Not allowed");
+                            }
+                        }
+                    }).done(function(){
+                        alert("City deleted");
+                    })  
+                });
+                $("#6ShowLanguagesbtn").click(function(){
                     $("#responseField").empty();
                     $.ajax({
                         method: "GET",
-                        url: URI + "Country?includeRelations=true&" + "UserName=" + username
-                    }).done(function(response){
-                        var len = response.length;
-                        $("#responseField").append("<tr><th>ID</th><th>Name</th></tr>")
-                        for(var i=0; i<len; i++){
-                            var countryID = response[i].countryID;
-                            var countryName = response[i].countryName;
-
-                            var tr_str = "<tr>" +
-                                "<td align='left'>" + countryID + "</td>" +
-                                "<td align='right'>" + countryName + "</td>" +
-                                "</tr>"; 
-
-                            $("#responseField").append(tr_str);
-                        }
-                    });
-                });
-                $("#deleteCountry").click(function(){
-                    $("#responseField").empty();
-                    let countryID = $("#deleteCountryById").val();
-                    $.ajax({
-                        method: "DELETE",
-                        url: URI + "Country/" + countryID + "?UserName=" + username,
+                        url: URI + "/?includeRelations=true&UserName=" + username,
+                        dataType: 'JSON',
                         statusCode: {
                             400: function(){
                                 alert("Bad request");
-                            },
-                            405: function(){
-                                alert("Not allowed");
                             }
                         }
                     }).done(function (response){
-                        alert("Country with ID: " + countryID + " deleted");
-                    })  
+                        var len = response.length;
+
+                        for(var i=0; i<len; i++){
+                        var id = response[i].cityId;
+                        var cityName = response[i].name;
+                        var languages = response[i].cityLanguages;
+                        var spokenLangs = [];
+                        if(languages.length != 0){
+                            for(var j = 0; j < languages.length; j++){
+                                spokenLangs[j] = languages[j].languageName;
+                            }
+                        }
+                        var tr_str = "<tr><th>ID</th><th>City</th><th>Languages</th></tr>"
+                            +"<tr>"
+                            +"<td align='center'>" + id + "</td>" 
+                            +"<td align='center'>" + cityName + "</td>"
+                            +"<td align='center'>" + spokenLangs + "</td>"
+                            +"</tr>"
+                        $("#responseField").append(tr_str);
+                        }
+                    })
                 });
-                $("#putCountry").click(function(){
+                $("#7PostLanguagebtn").click(function(){
                     $("#responseField").empty();
-                    let countryID = $("#putCountryID").val();
-                    let country = {
-                        countryName: $("#putCountryName").val(),
-                        countryID: $("#putCountryID").val()
-                    };
+                    var cityLanguages = {
+                        cityId: $("#7CityID").val(),
+                        languageId: $("#7LanguageID").val()
+                        };
+                    URILanguages = "https://cityinfo.buchwaldshave34.dk/api/CityLanguage?UserName=" + username;
                     $.ajax({
-                        method: "PUT",
-                        url: URI + "Country/" + countryID + "?UserName=" + username,
+                        method: "POST",
                         dataType: "json",
                         contentType: 'application/json',
-                        data: JSON.stringify(country),
+                        data: JSON.stringify(cityLanguages),
+                        url: URILanguages,
                         statusCode: {
                             400: function(){
                                 alert("Bad request");
                             },
-                            405: function(){
-                                alert("Not allowed");
+                            200: function(){
+                                alert("SUCCES");
+                            },
+                            500: function(){
+                                alert("Server error. Make sure to enter an existing CityID AND LanguageID!!!");
                             }
                         }
-                    }).done(function (response){
-                        alert("Country with ID: " + countryID + " updated");
-                    })  
+                    })
+                })
+                $("#ShowLanguageIDsbtn").click(function(){
+                    $("#responseField").empty();
+                    $.ajax({
+                        method: "GET",
+                        dataType: "json",
+                        url: "https://cityinfo.buchwaldshave34.dk/api/Language?includeRelations=false&UserName=" + username
+                    }).done(function(response){
+                        var len = response.length;
+
+                        for(var i=0; i<len; i++){
+                        var id = response[i].languageId;
+                        var language =response[i].languageName;
+                        var tr_str = "<tr><th>ID</th><th>Language</th></tr>"
+                            +"<tr>"
+                            +"<td align='center'>" + id + "</td>" 
+                            +"<td align='center'>" + language + "</td>"
+                            +"</tr>"
+                        $("#responseField").append(tr_str);
+                        }
+                    })
                 })
             });  
         </script>
